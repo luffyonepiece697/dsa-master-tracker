@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "Sheet": {
+      "title": "DSA Sheet",
+      "description": "A collection of DSA problems.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the sheet" },
+        "description": { "type": "string", "description": "Brief description" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "createdAt"]
+    },
+    "Problem": {
+      "title": "DSA Problem",
+      "description": "A specific problem within a sheet.",
+      "type": "object",
+      "properties": {
+        "sheetId": { "type": "string", "description": "Reference to the sheet" },
+        "title": { "type": "string", "description": "Problem title" },
+        "link": { "type": "string", "description": "LeetCode/GFG link" },
+        "difficulty": { "type": "string", "enum": ["Easy", "Medium", "Hard"] },
+        "status": { "type": "string", "enum": ["Solved", "Unsolved"] }
+      },
+      "required": ["sheetId", "title", "status"]
+    },
+    "Solution": {
+      "title": "Problem Solution",
+      "description": "A solution implementation for a problem.",
+      "type": "object",
+      "properties": {
+        "problemId": { "type": "string", "description": "Reference to the problem" },
+        "code": { "type": "string", "description": "The source code" },
+        "approach": { "type": "string", "description": "Explanation of the approach" },
+        "tc": { "type": "string", "description": "Time Complexity" },
+        "sc": { "type": "string", "description": "Space Complexity" },
+        "type": { "type": "string", "enum": ["Brute Force", "Better", "Optimal"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["problemId", "code", "type", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/sheets/{sheetId}": {
+      "schema": "Sheet",
+      "description": "Top-level sheets"
+    },
+    "/problems/{problemId}": {
+      "schema": "Problem",
+      "description": "Problems across all sheets"
+    },
+    "/solutions/{solutionId}": {
+      "schema": "Solution",
+      "description": "Solutions for problems"
+    }
+  }
+}

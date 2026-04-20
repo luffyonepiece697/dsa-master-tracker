@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: sheets
+    // Fields: name (string), description (string), createdAt (timestamp)
+    //
+    // Collection: problems
+    // Fields: sheetId (string), title (string), link (string), difficulty (string), status (string)
+    //
+    // Collection: solutions
+    // Fields: problemId (string), code (string), approach (string), tc (string), sc (string), type (string), createdAt (timestamp)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner() {
+      return isAuthenticated() && 
+             request.auth.token.email == "pillimaheshwar14@gmail.com" && 
+             request.auth.token.email_verified == true;
+    }
+
+    // Validation Functions
+    function isValidSheet(data) {
+      return data.keys().hasAll(['name', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 500;
+    }
+
+    function isValidProblem(data) {
+      return data.keys().hasAll(['sheetId', 'title', 'status']) &&
+             data.sheetId is string &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.status in ['Solved', 'Unsolved'];
+    }
+
+    function isValidSolution(data) {
+      return data.keys().hasAll(['problemId', 'code', 'type', 'createdAt']) &&
+             data.problemId is string &&
+             data.code is string && data.code.size() > 0 && data.code.size() < 50000 &&
+             data.type in ['Brute Force', 'Better', 'Optimal'];
+    }
+
+    // Rules
+    match /sheets/{sheetId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner() && isValidSheet(request.resource.data);
+    }
+
+    match /problems/{problemId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner() && isValidProblem(request.resource.data);
+    }
+
+    match /solutions/{solutionId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner() && isValidSolution(request.resource.data);
+    }
+  }
+}
